@@ -256,7 +256,7 @@ def log_data_point(city):
         "today": True
     }
 
-    data_point_today = {
+    data_point_tmrw = {
         "city": city,
         "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
         "high_single": high_single_tmrw,
@@ -299,6 +299,7 @@ if __name__ == "__main__":
     random.shuffle(city_names)
     for city in city_names:
         log_data_point(city)
+
 
 
 
