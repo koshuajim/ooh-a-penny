@@ -2,7 +2,7 @@ name: Hourly LA scheduler
 
 on:
   schedule:
-    - cron: "0 * * * *"   # every hour (UTC)
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
