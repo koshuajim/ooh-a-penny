@@ -10,7 +10,7 @@ sys.stdout.reconfigure(line_buffering=True)
 
 import time
 
-def get_forever(url, *, params=None, timeout=10, delay=30):
+def get_forever(url, *, params=None, timeout=10, delay=20):
     attempt = 0
     while True:
         attempt += 1
@@ -78,7 +78,6 @@ def grab_high_single(city_code):
         "forecast_days": 2,
         "temperature_unit": "fahrenheit"
     }
-    print("high single before")
     response = get_forever(url, params=params)
     data = response.json()
     
@@ -98,7 +97,6 @@ def grab_low_single(city_code):
         "forecast_days": 2,
         "temperature_unit": "fahrenheit"
     }
-    print("low single before")
     response = get_forever(url, params=params)
     data = response.json()
     
@@ -214,12 +212,8 @@ def log_data_point(city, today=True, dry_run=False):
     
     low_single_today, low_single_tmrw = grab_low_single(city)
     low_ensemble_today, low_ensemble_tmrw = grab_low_ensemble(city)
-
-    print(f"Found weather for {city}")
     
     high_prices = grab_prices(city, today=today, high=True)
-
-    print(f"Got high prices for {city}")
     
     low_prices = grab_prices(city, today=today, high=False)
     
@@ -288,7 +282,7 @@ PARAMS_BY_HOUR = {
 if __name__ == "__main__":
     now_la = datetime.now(ZoneInfo("America/Los_Angeles"))
     hour = now_la.hour
-    print("ahahah")
+    
     params = PARAMS_BY_HOUR.get(hour)
     
     if not params:
@@ -298,6 +292,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
