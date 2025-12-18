@@ -59,7 +59,7 @@ def grab_high_single(city_code):
         "forecast_days": 2,
         "temperature_unit": "fahrenheit"
     }
-    
+    print("high single before")
     response = requests.get(url, params=params)
     data = response.json()
     
@@ -79,7 +79,7 @@ def grab_low_single(city_code):
         "forecast_days": 2,
         "temperature_unit": "fahrenheit"
     }
-    
+    print("low single before")
     response = requests.get(url, params=params)
     data = response.json()
     
@@ -279,6 +279,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
