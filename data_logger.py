@@ -114,9 +114,6 @@ def grab_high_ensemble(city_code):
             today_highs.append(temps[0])
             tmrw_highs.append(temps[1])
     
-    today_highs = np.array(today_highs)
-    tmrw_highs = np.array(tmrw_highs)
-    
     return today_highs, tmrw_highs
 
 def grab_low_ensemble(city_code):
@@ -278,6 +275,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
