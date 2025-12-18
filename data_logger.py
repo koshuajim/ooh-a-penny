@@ -10,29 +10,18 @@ sys.stdout.reconfigure(line_buffering=True)
 
 import time
 
-def get_forever(url, *, params=None, timeout=10, delay=5):
+def get_forever(url, *, params=None, timeout=10, delay=30):
     attempt = 0
     while True:
         attempt += 1
         try:
-            print(f"GET {url} (attempt {attempt})", flush=True)
+            print(f"GET attempt {attempt}", flush=True)
             r = requests.get(url, params=params, timeout=timeout)
 
             # Handle explicit rate-limit
-            if r.status_code == 429:
-                print("⏳ 429 rate limit hit", flush=True)
-                time.sleep(delay)
-                continue
 
             r.raise_for_status()
             return r
-
-        except requests.exceptions.Timeout:
-            print(f"⏱️ timeout, sleeping {delay}s", flush=True)
-        except requests.exceptions.ConnectionError as e:
-            print(f"🔌 connection error: {e}", flush=True)
-        except requests.exceptions.HTTPError as e:
-            print(f"⚠️ HTTP error: {e}", flush=True)
 
         time.sleep(delay)
 
@@ -309,6 +298,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
