@@ -195,18 +195,18 @@ def grab_prices(city_code, today=True, high=True):
     
     return prices
     
-def log_data_point(city_code, today=True, dry_run=False):
-    high_single_today, high_single_tmrw = grab_high_single(city_code)
-    high_ensemble_today, high_ensemble_tmrw = grab_high_ensemble(city_code)
+def log_data_point(city, today=True, dry_run=False):
+    high_single_today, high_single_tmrw = grab_high_single(city)
+    high_ensemble_today, high_ensemble_tmrw = grab_high_ensemble(city)
     
-    low_single_today, low_single_tmrw = grab_low_single(city_code)
-    low_ensemble_today, low_ensemble_tmrw = grab_low_ensemble(city_code)
+    low_single_today, low_single_tmrw = grab_low_single(city)
+    low_ensemble_today, low_ensemble_tmrw = grab_low_ensemble(city)
     
-    high_prices = grab_prices(city_code, today=today, high=True)
-    low_prices = grab_prices(city_code, today=today, high=False)
+    high_prices = grab_prices(city, today=today, high=True)
+    low_prices = grab_prices(city, today=today, high=False)
     
     data_point = {
-        "city": city_code,
+        "city": city,
         "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
         "high_single": high_single_today if today else high_single_tmrw,
         "high_ensemble": high_ensemble_today if today else high_ensemble_tmrw,
@@ -225,7 +225,7 @@ def log_data_point(city_code, today=True, dry_run=False):
         data.append(data_point)
         DATA_FILE.write_text(json.dumps(data, indent=2))
     
-    print("Logged Data Point for ", city_code, " today=", today, " dry_run=", dry_run)
+    print("Logged Data Point for ", city, " today=", today, " dry_run=", dry_run)
     
 
 PARAMS_BY_HOUR = {
@@ -280,3 +280,4 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
