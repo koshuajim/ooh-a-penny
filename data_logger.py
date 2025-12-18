@@ -162,7 +162,7 @@ def grab_available_events(city_code, today=True, high=True):
         )
 
     print(r.json())
-    markets = r.json()["market"]
+    markets = r.json()["markets"]
     available_events = []
     for market in markets:
         if market['status'] == 'active':
@@ -281,5 +281,6 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
