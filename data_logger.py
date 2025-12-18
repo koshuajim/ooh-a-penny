@@ -5,6 +5,8 @@ import pandas as pd
 import json
 from pathlib import Path
 from zoneinfo import ZoneInfo
+import sys
+sys.stdout.reconfigure(line_buffering=True)
 
 DATA_FILE = Path("data_log.json")
 BASE = "https://api.elections.kalshi.com/trade-api/v2"
@@ -279,6 +281,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
