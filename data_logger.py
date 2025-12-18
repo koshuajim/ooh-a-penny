@@ -15,7 +15,8 @@ def get_forever(url, *, params=None, timeout=10, delay=20):
     while True:
         attempt += 1
         try:
-            print(f"GET attempt {attempt}", flush=True)
+            if attempt > 1:
+                print(f"GET attempt {attempt}", flush=True)
             r = requests.get(url, params=params, timeout=timeout)
 
             # Handle explicit rate-limit
@@ -295,6 +296,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
