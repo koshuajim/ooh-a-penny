@@ -268,15 +268,14 @@ def log_data_point(city):
         "today": False
     }
     
-    if not dry_run:
-        if DATA_FILE.exists():
-            data = json.loads(DATA_FILE.read_text())
-        else:
-            data = []
+    if DATA_FILE.exists():
+        data = json.loads(DATA_FILE.read_text())
+    else:
+        data = []
         
-        data.append(data_point_today)
-        data.append(data_point_tmrw)
-        DATA_FILE.write_text(json.dumps(data, indent=2))
+    data.append(data_point_today)
+    data.append(data_point_tmrw)
+    DATA_FILE.write_text(json.dumps(data, indent=2))
     
     print("Logged Data Point for ", city)
 
@@ -300,6 +299,7 @@ if __name__ == "__main__":
     random.shuffle(city_names)
     for city in city_names:
         log_data_point(city)
+
 
 
 
