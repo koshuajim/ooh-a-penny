@@ -279,7 +279,9 @@ def log_data_point(city, today=True, dry_run=False):
 # log_data_point("la", today=False)
 
 if __name__ == "__main__":
-    for city in random.shuffle(list(high_series.keys())):
+    city_names = random.shuffle(list(high_series.keys()))
+    for city in city_names:
         log_data_point(city)
         log_data_point(city, False)
+
 
