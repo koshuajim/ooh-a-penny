@@ -294,20 +294,4 @@ if __name__ == "__main__":
         raise SystemExit(0)
     
     for p in params:
-
         log_data_point(**p)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
