@@ -51,6 +51,16 @@ low_series = {
     "phil": "KXLOWTPHIL",
 }
 
+city_timezones = {
+    "la": "America/Los_Angeles",
+    "den": "America/Denver",
+    "ny": "America/New_York",
+    "chi": "America/Chicago",
+    "mia": "America/New_York",   # Miami
+    "aus": "America/Chicago",   # Austin
+    "phil": "America/New_York", # Philadelphia
+}
+
 meteo_ensembles = {
     "la": "ecmwf_ifs025",
     "den": "gfs_seamless",
@@ -69,6 +79,10 @@ city_coords = {
     "chi": (41.78412, -87.75514),
     "phil": (39.87326, -75.22681),
     "den": (39.76746, -104.86948)
+}
+
+timezones = {
+   "la": 
 }
 
 def grab_high_single(city_code):
@@ -183,7 +197,7 @@ def grab_available_events(city_code, today=True, high=True):
         if market['status'] == 'active':
             available_events.append(market['ticker'])
     
-    dateString = datetime.now().strftime("%y%b%d").upper() if today else (datetime.now() + pd.Timedelta(days=1)).strftime("%y%b%d").upper()
+    dateString = datetime.now(ZoneInfo(city_timezones[city_code])).strftime("%y%b%d").upper() if today else (datetime.now(ZoneInfo(city_timezones[city_code])) + pd.Timedelta(days=1)).strftime("%y%b%d").upper()
     
     filtered_events = [event for event in available_events if dateString in event]
     return filtered_events
@@ -218,7 +232,6 @@ def log_data_point(city, today=True, dry_run=False):
     low_ensemble_today, low_ensemble_tmrw = grab_low_ensemble(city)
     
     high_prices = grab_prices(city, today=today, high=True)
-    
     low_prices = grab_prices(city, today=today, high=False)
     
     data_point = {
@@ -242,31 +255,6 @@ def log_data_point(city, today=True, dry_run=False):
         DATA_FILE.write_text(json.dumps(data, indent=2))
     
     print("Logged Data Point for ", city, " today=", today, " dry_run=", dry_run)
-    
-
-PARAMS_BY_HOUR = {
-    20: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}],
-    21: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}],
-    22: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}, {"city": "chi", "today": False}, {"city": "aus", "today": False}],
-    23: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}, {"city": "chi", "today": False}, {"city": "aus", "today": False}, {"city": "den", "today": False}],
-    0:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    1:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    2:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    3:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    4:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    5:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    6:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    7:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    8:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    9:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    10: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    11: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    12: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    13: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    14: [{"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
-    15: [{"city": "den", "today": True}, {"city": "la", "today": True}],
-    16: [{"city": "la", "today": True}],
-}
 
 # la 12 am same, 4 pm same
 # denver 11 pm previous, 3 pm same
@@ -284,14 +272,6 @@ PARAMS_BY_HOUR = {
 # log_data_point("la", today=False)
 
 if __name__ == "__main__":
-    now_la = datetime.now(ZoneInfo("America/Los_Angeles"))
-    hour = now_la.hour
-    
-    params = PARAMS_BY_HOUR.get(hour)
-    
-    if not params:
-        print("No data points scheduled for this hour.")
-        raise SystemExit(0)
-    
-    for p in params:
-        log_data_point(**p)
+    for city in high_series:
+        log_data_point("la")
+        log_data_point("la", False)
