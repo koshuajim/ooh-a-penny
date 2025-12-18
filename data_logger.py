@@ -81,8 +81,14 @@ city_coords = {
     "den": (39.76746, -104.86948)
 }
 
-timezones = {
-   "la": 
+city_timezones = {
+    "la": "America/Los_Angeles",
+    "den": "America/Denver",
+    "ny": "America/New_York",
+    "chi": "America/Chicago",
+    "mia": "America/New_York",   # Miami
+    "aus": "America/Chicago",   # Austin
+    "phil": "America/New_York", # Philadelphia
 }
 
 def grab_high_single(city_code):
@@ -275,3 +281,4 @@ if __name__ == "__main__":
     for city in high_series:
         log_data_point("la")
         log_data_point("la", False)
+
