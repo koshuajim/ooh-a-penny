@@ -156,7 +156,6 @@ def grab_available_events(city_code, today=True, high=True):
             params = {"series_ticker": low_series[city_code], "status": "open"}
         )
 
-    print(r.json())
     markets = r.json()["markets"]
     available_events = []
     for market in markets:
@@ -275,6 +274,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
