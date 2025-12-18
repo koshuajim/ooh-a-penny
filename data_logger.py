@@ -5,6 +5,7 @@ import pandas as pd
 import json
 import argparse
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 DATA_FILE = Path("data_log.json")
 BASE = "https://api.elections.kalshi.com/trade-api/v2"
@@ -218,8 +219,29 @@ def log_data_point(city_code, today=True, dry_run=False):
     
     print("Logged Data Point for ", city_code, " today=", today, " dry_run=", dry_run)
     
-    
-    
+
+PARAMS_BY_HOUR = {
+    21: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}],
+    22: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}, {"city": "chi", "today": False}, {"city": "aus", "today": False}],
+    23: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}, {"city": "chi", "today": False}, {"city": "aus", "today": False}, {"city": "den", "today": False}],
+    0:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    1:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    2:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    3:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    4:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    5:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    6:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    7:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    8:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    9:  [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    10: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    11: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    12: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    13: [{"city": "ny", "today": True}, {"city": "mia", "today": True}, {"city": "phil", "today": True}, {"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    14: [{"city": "chi", "today": True}, {"city": "aus", "today": True}, {"city": "den", "today": True}, {"city": "la", "today": True}],
+    15: [{"city": "den", "today": True}, {"city": "la", "today": True}],
+    16: [{"city": "la", "today": True}],
+}
 
 # la 12 am same, 4 pm same
 # denver 11 pm previous, 3 pm same
@@ -229,8 +251,7 @@ def log_data_point(city_code, today=True, dry_run=False):
 # aus 10 pm previous, 2 pm same
 # phil 9 pm previous, 1 pm same
 
-# hours to collect locally
-# 9 p, 10 p, 11 p, 12 s, 1 s, 2 s, 3 s, 4 s
+# 9pm, 10pm, 11pm, 12am, 1 am, 2 am, 3 am, 4 am, 5 am, 6 am, 7 am, 8 am, 9 am, 10 am, 11 am, 12 pm, 1 pm, 2 pm, 3 pm, 4pm
 
 # print(balance)
 # grab_high_orderbook_tdy("la")
@@ -238,15 +259,15 @@ def log_data_point(city_code, today=True, dry_run=False):
 # log_data_point("la", today=False)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--city", type=str, required=True)
-    parser.add_argument("--today", action="store_true")
-    parser.add_argument("--dry-run", action="store_true")
+    now_la = datetime.now(ZoneInfo("America/Los_Angeles"))
+    hour = now_la.hour
     
-    args = parser.parse_args()
+    params = PARAMS_BY_HOUR.get(hour)
+    
+    if not params:
+        print("No data points scheduled for this hour.")
+        raise SystemExit(0)
     
     log_data_point(
-        city_code=args.city,
-        today=args.today,
-        dry_run=args.dry_run
+        **params
     )
