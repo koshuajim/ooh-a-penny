@@ -3,7 +3,6 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import json
-import argparse
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -61,7 +60,7 @@ def grab_high_single(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
     data = response.json()
     
     max_temp_today = data["daily"]["temperature_2m_max"][0]
@@ -81,7 +80,7 @@ def grab_low_single(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
     data = response.json()
     
     min_temp_today = data["daily"]["temperature_2m_min"][0]
@@ -103,7 +102,7 @@ def grab_high_ensemble(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
     data = response.json()
     
     today_highs = []
@@ -134,7 +133,7 @@ def grab_low_ensemble(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
     data = response.json()
     
     today_lows = []
@@ -153,11 +152,13 @@ def grab_available_events(city_code, today=True, high=True):
         r = requests.get(
             f"{BASE}/markets",
             params = {"series_ticker": high_series[city_code], "status": "open"}
+            , timeout=10
         )
     else:
         r = requests.get(
             f"{BASE}/markets",
             params = {"series_ticker": low_series[city_code], "status": "open"}
+            , timeout=10
         )
     
     markets = r.json()["markets"]
@@ -179,6 +180,7 @@ def grab_prices(city_code, today=True, high=True):
     for ticker in event_tickers:
         r = requests.get(
             f"{BASE}/markets/{ticker}/orderbook",
+            timeout=10
         )
         
         orderbook = r.json()["orderbook"]
@@ -199,7 +201,7 @@ def log_data_point(city_code, today=True, dry_run=False):
     
     data_point = {
         "city": city_code,
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
         "high_single": high_single_today if today else high_single_tmrw,
         "high_ensemble": high_ensemble_today if today else high_ensemble_tmrw,
         "high_prices": high_prices,
@@ -268,6 +270,5 @@ if __name__ == "__main__":
         print("No data points scheduled for this hour.")
         raise SystemExit(0)
     
-    log_data_point(
-        **params
-    )
+    for p in params:
+        log_data_point(**p)
