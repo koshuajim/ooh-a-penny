@@ -184,7 +184,13 @@ def grab_prices(city_code, today=True, high=True):
         )
         
         orderbook = r.json()["orderbook"]
-        price = 100 - max(row[0] for row in orderbook["no"])
+        no_orders = orderbook.get("no")
+
+        if not no_orders or any(row is None or row[0] is None for row in no_orders):
+            price = -1
+        else:
+            price = 100 - max(row[0] for row in no_orders)
+            
         prices[ticker] = price
     
     return prices
@@ -223,6 +229,7 @@ def log_data_point(city_code, today=True, dry_run=False):
     
 
 PARAMS_BY_HOUR = {
+    20: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}],
     21: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}],
     22: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}, {"city": "chi", "today": False}, {"city": "aus", "today": False}],
     23: [{"city": "ny", "today": False}, {"city": "mia", "today": False}, {"city": "phil", "today": False}, {"city": "chi", "today": False}, {"city": "aus", "today": False}, {"city": "den", "today": False}],
@@ -271,4 +278,5 @@ if __name__ == "__main__":
         raise SystemExit(0)
     
     for p in params:
+
         log_data_point(**p)
