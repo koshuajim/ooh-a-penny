@@ -8,6 +8,34 @@ from zoneinfo import ZoneInfo
 import sys
 sys.stdout.reconfigure(line_buffering=True)
 
+import time
+
+def get_forever(url, *, params=None, timeout=10, delay=5):
+    attempt = 0
+    while True:
+        attempt += 1
+        try:
+            print(f"GET {url} (attempt {attempt})", flush=True)
+            r = requests.get(url, params=params, timeout=timeout)
+
+            # Handle explicit rate-limit
+            if r.status_code == 429:
+                print("⏳ 429 rate limit hit", flush=True)
+                time.sleep(delay)
+                continue
+
+            r.raise_for_status()
+            return r
+
+        except requests.exceptions.Timeout:
+            print(f"⏱️ timeout, sleeping {delay}s", flush=True)
+        except requests.exceptions.ConnectionError as e:
+            print(f"🔌 connection error: {e}", flush=True)
+        except requests.exceptions.HTTPError as e:
+            print(f"⚠️ HTTP error: {e}", flush=True)
+
+        time.sleep(delay)
+
 DATA_FILE = Path("data_log.json")
 BASE = "https://api.elections.kalshi.com/trade-api/v2"
 high_series = {
@@ -62,7 +90,7 @@ def grab_high_single(city_code):
         "temperature_unit": "fahrenheit"
     }
     print("high single before")
-    response = requests.get(url, params=params)
+    response = get_forever(url, params=params)
     data = response.json()
     
     max_temp_today = data["daily"]["temperature_2m_max"][0]
@@ -82,7 +110,7 @@ def grab_low_single(city_code):
         "temperature_unit": "fahrenheit"
     }
     print("low single before")
-    response = requests.get(url, params=params)
+    response = get_forever(url, params=params)
     data = response.json()
     
     min_temp_today = data["daily"]["temperature_2m_min"][0]
@@ -104,7 +132,7 @@ def grab_high_ensemble(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params)
+    response = get_forever(url, params=params)
     data = response.json()
     
     today_highs = []
@@ -132,7 +160,7 @@ def grab_low_ensemble(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params)
+    response = get_forever(url, params=params)
     data = response.json()
     
     today_lows = []
@@ -148,12 +176,12 @@ def grab_low_ensemble(city_code):
 
 def grab_available_events(city_code, today=True, high=True):
     if high:
-        r = requests.get(
+        r = get_forever(
             f"{BASE}/markets",
             params = {"series_ticker": high_series[city_code], "status": "open"}
         )
     else:
-        r = requests.get(
+        r = get_forever(
             f"{BASE}/markets",
             params = {"series_ticker": low_series[city_code], "status": "open"}
         )
@@ -175,7 +203,7 @@ def grab_prices(city_code, today=True, high=True):
     prices = {}
     
     for ticker in event_tickers:
-        r = requests.get(
+        r = get_forever(
             f"{BASE}/markets/{ticker}/orderbook",
         )
         
@@ -281,6 +309,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
