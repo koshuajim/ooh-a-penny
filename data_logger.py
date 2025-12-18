@@ -5,6 +5,7 @@ import pandas as pd
 import json
 from pathlib import Path
 from zoneinfo import ZoneInfo
+import random
 import sys
 sys.stdout.reconfigure(line_buffering=True)
 
@@ -278,7 +279,7 @@ def log_data_point(city, today=True, dry_run=False):
 # log_data_point("la", today=False)
 
 if __name__ == "__main__":
-    for city in high_series:
-        log_data_point("la")
-        log_data_point("la", False)
+    for city in random.shuffle(list(high_series.keys())):
+        log_data_point(city)
+        log_data_point(city, False)
 
