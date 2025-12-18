@@ -231,25 +231,41 @@ def grab_prices(city_code, today=True, high=True):
     
     return prices
     
-def log_data_point(city, today=True, dry_run=False):
+def log_data_point(city):
     high_single_today, high_single_tmrw = grab_high_single(city)
     high_ensemble_today, high_ensemble_tmrw = grab_high_ensemble(city)
     
     low_single_today, low_single_tmrw = grab_low_single(city)
     low_ensemble_today, low_ensemble_tmrw = grab_low_ensemble(city)
     
-    high_prices = grab_prices(city, today=today, high=True)
-    low_prices = grab_prices(city, today=today, high=False)
+    high_prices_today = grab_prices(city, today=True, high=True)
+    low_prices_today = grab_prices(city, today=True, high=False)
+
+    high_prices_tmrw = grab_prices(city, today=False, high=True)
+    low_prices_tmrw = grab_prices(city, today=False, high=False)
     
-    data_point = {
+    data_point_today = {
         "city": city,
         "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
-        "high_single": high_single_today if today else high_single_tmrw,
-        "high_ensemble": high_ensemble_today if today else high_ensemble_tmrw,
-        "high_prices": high_prices,
-        "low_single": low_single_today if today else low_single_tmrw,
-        "low_ensemble": low_ensemble_today if today else low_ensemble_tmrw,
-        "low_prices": low_prices
+        "high_single": high_single_today,
+        "high_ensemble": high_ensemble_today,
+        "high_prices": high_prices_today,
+        "low_single": low_single_today,
+        "low_ensemble": low_ensemble_today,
+        "low_prices": low_prices_today,
+        "today": True
+    }
+
+    data_point_today = {
+        "city": city,
+        "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
+        "high_single": high_single_tmrw,
+        "high_ensemble": high_ensemble_tmrw,
+        "high_prices": high_prices_tmrw,
+        "low_single": low_single_tmrw,
+        "low_ensemble": low_ensemble_tmrw,
+        "low_prices": low_prices_tmrw,
+        "today": False
     }
     
     if not dry_run:
@@ -258,10 +274,11 @@ def log_data_point(city, today=True, dry_run=False):
         else:
             data = []
         
-        data.append(data_point)
+        data.append(data_point_today)
+        data.append(data_point_tmrw)
         DATA_FILE.write_text(json.dumps(data, indent=2))
     
-    print("Logged Data Point for ", city, " today=", today, " dry_run=", dry_run)
+    print("Logged Data Point for ", city)
 
 # la 12 am same, 4 pm same
 # denver 11 pm previous, 3 pm same
@@ -283,7 +300,7 @@ if __name__ == "__main__":
     random.shuffle(city_names)
     for city in city_names:
         log_data_point(city)
-        log_data_point(city, False)
+
 
 
 
