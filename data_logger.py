@@ -269,7 +269,7 @@ PARAMS_BY_HOUR = {
 if __name__ == "__main__":
     now_la = datetime.now(ZoneInfo("America/Los_Angeles"))
     hour = now_la.hour
-    
+    print("ahahah")
     params = PARAMS_BY_HOUR.get(hour)
     
     if not params:
@@ -279,6 +279,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
