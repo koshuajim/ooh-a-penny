@@ -23,6 +23,9 @@ def get_forever(url, *, params=None, timeout=10, delay=20):
             r.raise_for_status()
             return r
 
+        except:
+            pass
+        
         time.sleep(delay)
 
 DATA_FILE = Path("data_log.json")
@@ -292,6 +295,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
