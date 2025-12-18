@@ -60,7 +60,7 @@ def grab_high_single(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params, timeout=10)
+    response = requests.get(url, params=params)
     data = response.json()
     
     max_temp_today = data["daily"]["temperature_2m_max"][0]
@@ -80,7 +80,7 @@ def grab_low_single(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params, timeout=10)
+    response = requests.get(url, params=params)
     data = response.json()
     
     min_temp_today = data["daily"]["temperature_2m_min"][0]
@@ -102,7 +102,7 @@ def grab_high_ensemble(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params, timeout=10)
+    response = requests.get(url, params=params)
     data = response.json()
     
     today_highs = []
@@ -133,7 +133,7 @@ def grab_low_ensemble(city_code):
         "temperature_unit": "fahrenheit"
     }
     
-    response = requests.get(url, params=params, timeout=10)
+    response = requests.get(url, params=params)
     data = response.json()
     
     today_lows = []
@@ -152,13 +152,11 @@ def grab_available_events(city_code, today=True, high=True):
         r = requests.get(
             f"{BASE}/markets",
             params = {"series_ticker": high_series[city_code], "status": "open"}
-            , timeout=10
         )
     else:
         r = requests.get(
             f"{BASE}/markets",
             params = {"series_ticker": low_series[city_code], "status": "open"}
-            , timeout=10
         )
 
     print(r.json())
@@ -181,7 +179,6 @@ def grab_prices(city_code, today=True, high=True):
     for ticker in event_tickers:
         r = requests.get(
             f"{BASE}/markets/{ticker}/orderbook",
-            timeout=10
         )
         
         orderbook = r.json()["orderbook"]
@@ -281,6 +278,7 @@ if __name__ == "__main__":
     for p in params:
 
         log_data_point(**p)
+
 
 
 
