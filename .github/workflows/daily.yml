@@ -1,0 +1,37 @@
+name: Hourly LA scheduler
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # every hour (UTC)
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests numpy pandas
+
+      - name: Run script (Python decides params based on LA time)
+        run: python data_logger.py
+
+      - name: Commit data changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data_log.json
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update data"
+          git push || echo "Nothing to push"
