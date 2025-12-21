@@ -100,16 +100,15 @@ def grab_high_single(city_code):
         "longitude": coords[1],
         "daily": "temperature_2m_max",
         "timezone": "auto",
-        "forecast_days": 2,
+        "forecast_days": 1,
         "temperature_unit": "fahrenheit"
     }
     response = get_forever(url, params=params)
     data = response.json()
     
     max_temp_today = data["daily"]["temperature_2m_max"][0]
-    max_temp_tmrw = data["daily"]["temperature_2m_max"][1]
     
-    return max_temp_today, max_temp_tmrw
+    return max_temp_today
 
 def grab_low_single(city_code):
     coords = city_coords[city_code]
@@ -119,16 +118,15 @@ def grab_low_single(city_code):
         "longitude": coords[1],
         "daily": "temperature_2m_min",
         "timezone": "auto",
-        "forecast_days": 2,
+        "forecast_days": 1,
         "temperature_unit": "fahrenheit"
     }
     response = get_forever(url, params=params)
     data = response.json()
     
     min_temp_today = data["daily"]["temperature_2m_min"][0]
-    min_temp_tmrw = data["daily"]["temperature_2m_min"][1]
     
-    return min_temp_today, min_temp_tmrw
+    return min_temp_today
 
 def grab_high_ensemble(city_code):
     coords = city_coords[city_code]
@@ -140,7 +138,7 @@ def grab_high_ensemble(city_code):
         "daily": "temperature_2m_max",
         "models": model,
         "timezone": "auto",
-        "forecast_days": 2,
+        "forecast_days": 1,
         "temperature_unit": "fahrenheit"
     }
     
@@ -148,15 +146,13 @@ def grab_high_ensemble(city_code):
     data = response.json()
     
     today_highs = []
-    tmrw_highs = []
     
     for key in data["daily"]:
         if "temperature" in key:
             temps = data["daily"][key]
             today_highs.append(temps[0])
-            tmrw_highs.append(temps[1])
     
-    return today_highs, tmrw_highs
+    return today_highs
 
 def grab_low_ensemble(city_code):
     coords = city_coords[city_code]
@@ -168,7 +164,7 @@ def grab_low_ensemble(city_code):
         "daily": "temperature_2m_min",
         "models": model,
         "timezone": "auto",
-        "forecast_days": 2,
+        "forecast_days": 1,
         "temperature_unit": "fahrenheit"
     }
     
@@ -176,17 +172,15 @@ def grab_low_ensemble(city_code):
     data = response.json()
     
     today_lows = []
-    tmrw_lows = []
     
     for key in data["daily"]:
         if "temperature" in key:
             temps = data["daily"][key]
             today_lows.append(temps[0])
-            tmrw_lows.append(temps[1])
     
-    return today_lows, tmrw_lows
+    return today_lows
 
-def grab_available_events(city_code, today=True, high=True):
+def grab_available_events(city_code, high=True):
     if high:
         r = get_forever(
             f"{BASE}/markets",
@@ -204,13 +198,13 @@ def grab_available_events(city_code, today=True, high=True):
         if market['status'] == 'active':
             available_events.append(market['ticker'])
     
-    dateString = datetime.now(ZoneInfo(city_timezones[city_code])).strftime("%y%b%d").upper() if today else (datetime.now(ZoneInfo(city_timezones[city_code])) + pd.Timedelta(days=1)).strftime("%y%b%d").upper()
+    dateString = datetime.now(ZoneInfo(city_timezones[city_code])).strftime("%y%b%d").upper()
     
     filtered_events = [event for event in available_events if dateString in event]
     return filtered_events
 
-def grab_prices(city_code, today=True, high=True):
-    event_tickers = grab_available_events(city_code, today=today, high=high)
+def grab_prices(city_code, high=True):
+    event_tickers = grab_available_events(city_code, high=high)
     
     prices = {}
     
@@ -232,40 +226,24 @@ def grab_prices(city_code, today=True, high=True):
     return prices
     
 def log_data_point(city):
-    high_single_today, high_single_tmrw = grab_high_single(city)
-    high_ensemble_today, high_ensemble_tmrw = grab_high_ensemble(city)
+    high_single_today = grab_high_single(city)
+    high_ensemble_today = grab_high_ensemble(city)
     
-    low_single_today, low_single_tmrw = grab_low_single(city)
-    low_ensemble_today, low_ensemble_tmrw = grab_low_ensemble(city)
+    low_single_today = grab_low_single(city)
+    low_ensemble_today = grab_low_ensemble(city)
     
-    high_prices_today = grab_prices(city, today=True, high=True)
-    low_prices_today = grab_prices(city, today=True, high=False)
-
-    high_prices_tmrw = grab_prices(city, today=False, high=True)
-    low_prices_tmrw = grab_prices(city, today=False, high=False)
+    high_prices_today = grab_prices(city, high=True)
+    low_prices_today = grab_prices(city, high=False)
     
     data_point_today = {
         "city": city,
-        "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
+        "timestamp": datetime.now(ZoneInfo(city_timezones[city])).isoformat(),
         "high_single": high_single_today,
         "high_ensemble": high_ensemble_today,
         "high_prices": high_prices_today,
         "low_single": low_single_today,
         "low_ensemble": low_ensemble_today,
         "low_prices": low_prices_today,
-        "today": True
-    }
-
-    data_point_tmrw = {
-        "city": city,
-        "timestamp": datetime.now(ZoneInfo("America/Los_Angeles")).isoformat(),
-        "high_single": high_single_tmrw,
-        "high_ensemble": high_ensemble_tmrw,
-        "high_prices": high_prices_tmrw,
-        "low_single": low_single_tmrw,
-        "low_ensemble": low_ensemble_tmrw,
-        "low_prices": low_prices_tmrw,
-        "today": False
     }
     
     if DATA_FILE.exists():
@@ -274,7 +252,6 @@ def log_data_point(city):
         data = []
         
     data.append(data_point_today)
-    data.append(data_point_tmrw)
     DATA_FILE.write_text(json.dumps(data, indent=2))
     
     print("Logged Data Point for ", city)
@@ -299,6 +276,7 @@ if __name__ == "__main__":
     random.shuffle(city_names)
     for city in city_names:
         log_data_point(city)
+
 
 
 
